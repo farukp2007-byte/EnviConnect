@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: envi_connect_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=envi-connect-super-secret-jwt-key-2026-production
+      - DATABASE_URL=sqlite:////app/envi_connect.db
+    volumes:
+      - backend_data:/app/uploads
+      - backend_db:/app
+    networks:
+      - envi_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: envi_connect_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - envi_network
+
+networks:
+  envi_network:
+    driver: bridge
+
+volumes:
+  backend_data:
+  backend_db:
